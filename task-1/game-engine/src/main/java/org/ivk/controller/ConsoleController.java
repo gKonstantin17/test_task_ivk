@@ -11,24 +11,24 @@ public class ConsoleController {
     private final MessageView messageView = new MessageView();
     public void run() {
         messageView.startApp();
-        consumeCommands();
+        receiveCommands();
     }
-    public void consumeCommands() {
+    public void receiveCommands() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String message = scanner.nextLine();
             if (message.startsWith("GAME") || message.startsWith("game"))
                 gameService.receiveCommand(message);
 
-            else if (message.equals("MOVE") || message.equals("move"))
+            else if (message.startsWith("MOVE") || message.startsWith("move"))
                 gameService.receiveCommand(message);
 
-            else if (message.equals("HELP") || message.equals("help")) {
+            else if (message.equals("HELP") || message.equals("help"))
+                messageView.help();
+
+            else if (message.equals("EXIT") || message.equals("exit")) {
                 scanner.close();
                 break;
-            }
-            else if (message.equals("EXIT") || message.equals("exit")) {
-                messageView.help();
             }
             else {
                 messageView.incorrect();

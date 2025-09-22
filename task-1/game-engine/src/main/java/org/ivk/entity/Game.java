@@ -7,6 +7,9 @@ public class Game {
     private Player first;
     private Player second;
     private String status;
+    public Game() {
+        status = "not created";
+    }
     public Game(Board board, Player first, Player second) {
         this.board = board;
         this.first = first;

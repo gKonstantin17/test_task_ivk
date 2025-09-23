@@ -1,7 +1,7 @@
 package org.ivk.entity;
 
 public class Board {
-    private Integer size;
+    private final Integer size;
     private int[][] field;
 
     public Board(Integer size) {

@@ -43,4 +43,32 @@ public class MessageView {
     public void incorrect() {
         System.out.println("Incorrect command");
     }
+    public void winGame(String color) {
+        System.out.print("Game finished."+ color + " wins!");
+    }
+    public void drawGame() {
+        System.out.println("Game finished. Draw");
+    }
+
+    public void errorGameNotStarted() {
+        System.out.println("Ошибка: Игра не начата. Сначала выполните команду GAME");
+    }
+
+    public void errorInvalidMove() {
+        System.out.println("Ход невозможен: клетка занята или координаты неверны");
+    }
+
+    public void showMoves(String moves) {
+        System.out.println("Ходы:\n" + moves);
+    }
+
+    public void showCurrentPlayer(String color) {
+        System.out.println("Ход игрока: " + color);
+    }
+    public void showSquareCoords(int[][] coords) {
+        System.out.println("\nКоординаты квадрата:");
+        for (int[] coord : coords) {
+            System.out.println("  (" + coord[0] + "," + coord[1] + ")");
+        }
+    }
 }

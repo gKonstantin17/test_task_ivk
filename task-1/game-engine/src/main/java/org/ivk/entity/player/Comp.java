@@ -13,15 +13,15 @@ public class Comp extends Player {
         int size = board.getSize();
         int[][] field = board.getField();
 
-        // 1. Ищем выигрышный ход
+        //  выигрышный ход
         int[] winMove = findCriticalMove(field, size, myValue);
         if (winMove != null) return winMove;
 
-        // 2. Ищем блокирующий ход
+        //  блокирующий ход
         int[] blockMove = findCriticalMove(field, size, oppValue);
         if (blockMove != null) return blockMove;
 
-        // 3. Любая свободная клетка, выбираем случайно
+        //  Любая свободная клетка, выбираем случайно
         List<int[]> emptyCells = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -50,7 +50,7 @@ public class Comp extends Player {
                         if (dx == 0 && dy == 0) continue;
 
                         int[][] missing = checkAlmostSquare(field, x, y, dx, dy, colorValue, size);
-                        if (missing != null) return missing[0]; // возвращаем первую пустую клетку
+                        if (missing != null) return missing[0];
                     }
                 }
             }

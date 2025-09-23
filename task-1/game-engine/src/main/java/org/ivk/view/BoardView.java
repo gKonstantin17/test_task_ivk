@@ -3,9 +3,9 @@ package org.ivk.view;
 import org.ivk.entity.Board;
 
 public class BoardView {
-    private final String W = "●";
-    private final String B = "○";
-    private final String EMPTY = "·";
+    private final String W = "@";
+    private final String B = "O";
+    private final String EMPTY = "∙";
     private Board board;
     public BoardView(Board board) {
         this.board = board;
@@ -15,7 +15,7 @@ public class BoardView {
         int size = board.getSize();
 
         // Заголовок с номерами столбцов
-        System.out.print("   ");
+        System.out.print("  ");
         for (int col = 0; col < size; col++) {
             System.out.printf("%2d ", col);
         }
@@ -31,7 +31,7 @@ public class BoardView {
                     case 2 -> symbol = B;  // 2 = Черный (B)
                     default -> symbol = EMPTY;
                 }
-                System.out.printf(" %s ", symbol);
+                System.out.printf("%-2s ", symbol);
             }
             System.out.println();
         }

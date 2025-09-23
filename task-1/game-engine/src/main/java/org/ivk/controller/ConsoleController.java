@@ -63,14 +63,29 @@ public class ConsoleController {
     }
 
     private void handleMoveCommand(String[] parts) {
-        if (parts.length != 3) {
+        if (parts.length != 2 && parts.length != 3) {
             messageView.incorrect();
             return;
         }
 
         try {
-            int x = Integer.parseInt(parts[1]);
-            int y = Integer.parseInt(parts[2]);
+            int x, y;
+
+            if (parts.length == 3) {
+                // вариант "MOVE 3 4"
+                x = Integer.parseInt(parts[1].replace(",", ""));
+                y = Integer.parseInt(parts[2].replace(",", ""));
+            } else {
+                // вариант "MOVE 3,4" или "MOVE 5,3"
+                String[] coords = parts[1].split(",");
+                if (coords.length != 2) {
+                    messageView.incorrect();
+                    return;
+                }
+                x = Integer.parseInt(coords[0].trim());
+                y = Integer.parseInt(coords[1].trim());
+            }
+
             gameService.makeMove(x, y);
         } catch (NumberFormatException e) {
             messageView.incorrect();

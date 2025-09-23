@@ -41,20 +41,30 @@ public class ConsoleController {
     }
 
     private void handleGameCommand(String[] parts) {
-        if (parts.length != 6) {
+        if (parts.length < 5) {
             messageView.incorrect();
             return;
         }
 
         try {
-            int size = Integer.parseInt(parts[1]);
-            String type1 = parts[2];
-            String color1 = parts[3];
-            String type2 = parts[4];
-            String color2 = parts[5];
+            String paramsStr = String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length))
+                    .replace(",", " ")
+                    .trim();
+
+            String[] params = paramsStr.split("\\s+");
+            if (params.length != 5) { // size + 2 игрока по type/color = 5 элементов
+                messageView.incorrect();
+                return;
+            }
+
+            int size = Integer.parseInt(params[0]);
+            String type1 = params[1];
+            String color1 = params[2];
+            String type2 = params[3];
+            String color2 = params[4];
 
             if (color1.equalsIgnoreCase(color2)) {
-                System.out.println("Ошибка: игроки не могут быть одного цвета!");
+                messageView.errorSameColor();
                 return;
             }
 
@@ -68,33 +78,30 @@ public class ConsoleController {
     }
 
     private void handleMoveCommand(String[] parts) {
-        if (parts.length != 2 && parts.length != 3) {
+        if (parts.length < 2) {
             messageView.incorrect();
             return;
         }
 
         try {
-            int x, y;
+            String coordsStr = String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length))
+                    .replace(",", " ")
+                    .trim();
 
-            if (parts.length == 3) {
-                // вариант "MOVE 3 4"
-                x = Integer.parseInt(parts[1].replace(",", ""));
-                y = Integer.parseInt(parts[2].replace(",", ""));
-            } else {
-                // вариант "MOVE 3,4" или "MOVE 5,3"
-                String[] coords = parts[1].split(",");
-                if (coords.length != 2) {
-                    messageView.incorrect();
-                    return;
-                }
-                x = Integer.parseInt(coords[0].trim());
-                y = Integer.parseInt(coords[1].trim());
+            String[] coords = coordsStr.split("\\s+");
+            if (coords.length != 2) {
+                messageView.incorrect();
+                return;
             }
+
+            int x = Integer.parseInt(coords[0]);
+            int y = Integer.parseInt(coords[1]);
 
             gameService.makeMove(x, y);
         } catch (NumberFormatException e) {
             messageView.incorrect();
         }
     }
+
 
 }

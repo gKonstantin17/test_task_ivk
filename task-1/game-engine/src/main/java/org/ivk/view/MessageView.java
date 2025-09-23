@@ -71,4 +71,8 @@ public class MessageView {
             System.out.println("  (" + coord[0] + "," + coord[1] + ")");
         }
     }
+
+    public void errorSameColor() {
+        System.out.println("Ошибка: игроки не могут быть одного цвета!");
+    }
 }

@@ -2,6 +2,7 @@ package org.ivk.service;
 
 import org.ivk.entity.Board;
 import org.ivk.entity.Game;
+import org.ivk.entity.player.Comp;
 import org.ivk.entity.player.Player;
 import org.ivk.view.BoardView;
 
@@ -31,6 +32,8 @@ public class GameService {
         game.setCurrentPlayer(game.getFirst());
         moveLogger.clear();
         render();
+
+        autoPlayForComp();
     }
 
     public void makeMove(int x, int y) {
@@ -68,6 +71,18 @@ public class GameService {
         }
 
         changePlayer();
+
+        Player next = game.getCurrentPlayer();
+        if (next instanceof Comp comp) {
+            int myValue = "W".equals(comp.getColor()) ? 1 : 2;
+            int oppValue = myValue == 1 ? 2 : 1;
+
+            int[] move = comp.makeMove(board, myValue, oppValue); // метод из класса Comp
+            if (move != null) {
+                // рекурсивно делаем ход компьютера
+                makeMove(move[0], move[1]);
+            }
+        }
     }
 
     private void render() {
@@ -103,7 +118,44 @@ public class GameService {
             game.setCurrentPlayer(game.getFirst());
     }
 
-    // геттеры для тестов/интеграции
-    public Game getGame() { return game; }
-    public MoveLogger getMoveLogger() { return moveLogger; }
+    private void autoPlayForComp() {
+        while (game.getStatus().equals("started") && game.getCurrentPlayer() instanceof Comp) {
+            Comp comp = (Comp) game.getCurrentPlayer();
+
+            int myValue = "W".equals(comp.getColor()) ? 1 : 2;
+            int oppValue = myValue == 1 ? 2 : 1;
+            int[] move = comp.makeMove(board, myValue, oppValue);
+
+            if (move != null) {
+                if (!moveExecutor.execute(move[0], move[1])) break; // на случай ошибки
+                moveLogger.log(comp.getColor() + " (" + move[0] + "," + move[1] + ")");
+                render();
+
+                WinResult result = winChecker.checkWin(comp, move[0], move[1]);
+                if (result.isWin()) {
+                    System.out.println("Победил игрок " + comp.getColor());
+                    System.out.println("Координаты квадрата:");
+                    for (int[] coord : result.getSquareCoords()) {
+                        System.out.println("  (" + coord[0] + "," + coord[1] + ")");
+                    }
+                    game.setStatus("finished");
+                    return;
+                }
+
+                if (checkDraw()) {
+                    System.out.println("Ничья!");
+                    game.setStatus("finished");
+                    return;
+                }
+
+                changePlayer();
+            }
+
+            try {
+                Thread.sleep(500); // задержка 0.5 секунд
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 }

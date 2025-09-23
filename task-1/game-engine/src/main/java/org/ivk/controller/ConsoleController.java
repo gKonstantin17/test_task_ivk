@@ -26,8 +26,8 @@ public class ConsoleController {
                 continue;
             }
 
-            String[] parts = cmd.trim().split("\\s+");
-            String command = parts[0].toUpperCase();
+            String[] parts = cmd.toUpperCase().trim().split("\\s+");
+            String command = parts[0];
 
             switch (command) {
                 case "GAME" -> handleGameCommand(parts);

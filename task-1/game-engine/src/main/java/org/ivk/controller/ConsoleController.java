@@ -17,29 +17,29 @@ public class ConsoleController {
     }
     public void receiveCommands() {
         Scanner scanner = new Scanner(System.in);
-        while (true) {
+        boolean running = true;
+        while (running) {
             String cmd = scanner.nextLine();
 
             if (cmd == null || cmd.trim().isEmpty()) return;
 
             String[] parts = cmd.toUpperCase().trim().split("\\s+");
-            String command = parts[0].toUpperCase();
+            String command = parts[0];
 
             switch (command) {
                 case "GAME":
-                    handleGameCommand(parts);
-                    //  gameService.receiveCommand(message);
+                    handleGameCommand(parts);break;
                 case "MOVE":
-                    handleMoveCommand(parts);
+                    handleMoveCommand(parts);break;
                 case "HELP":
-                    messageView.help();
+                    messageView.help();break;
                 case "EXIT":
-                    scanner.close();
-                    break;
+                    scanner.close();break;
                 default:
-                    messageView.incorrect();
+                    messageView.incorrect();break;
             }
         }
+        scanner.close();
     }
 
     private void handleGameCommand(String[] parts) {

@@ -29,4 +29,32 @@ public class Game {
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
+
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    public Player getFirst() {
+        return first;
+    }
+
+    public void setFirst(Player first) {
+        this.first = first;
+    }
+
+    public Player getSecond() {
+        return second;
+    }
+
+    public void setSecond(Player second) {
+        this.second = second;
+    }
 }

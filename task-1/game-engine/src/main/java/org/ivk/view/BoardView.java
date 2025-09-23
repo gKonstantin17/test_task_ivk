@@ -23,12 +23,12 @@ public class BoardView {
 
         // Само поле
         for (int row = 0; row < size; row++) {
-            System.out.printf("%2d ", row); // Номер строки
+            System.out.printf("%2d ", row);
             for (int col = 0; col < size; col++) {
                 String symbol;
                 switch (field[row][col]) {
-                    case 2 -> symbol = W;
-                    case 1 -> symbol = B;
+                    case 1 -> symbol = W;  // 1 = Белый (W)
+                    case 2 -> symbol = B;  // 2 = Черный (B)
                     default -> symbol = EMPTY;
                 }
                 System.out.printf(" %s ", symbol);

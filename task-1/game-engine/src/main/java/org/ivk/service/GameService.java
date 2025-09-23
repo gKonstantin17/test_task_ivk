@@ -5,6 +5,7 @@ import org.ivk.entity.Game;
 import org.ivk.entity.player.Comp;
 import org.ivk.entity.player.Player;
 import org.ivk.view.BoardView;
+import org.ivk.view.MessageView;
 
 public class GameService {
     private Game game;
@@ -14,6 +15,8 @@ public class GameService {
     private MoveLogger moveLogger;
     private MoveExecutor moveExecutor;
     private IWinChecker winChecker;
+
+    private final MessageView messageView = new MessageView();
 
     public GameService() {
         this.moveLogger = new MoveLogger();
@@ -31,6 +34,7 @@ public class GameService {
         game.setStatus("started");
         game.setCurrentPlayer(game.getFirst());
         moveLogger.clear();
+        messageView.startGame();
         render();
 
         autoPlayForComp();
@@ -38,25 +42,24 @@ public class GameService {
 
     public void makeMove(int x, int y) {
         if (game == null) {
-            System.out.println("Ошибка: Игра не начата. Сначала выполните команду GAME");
+            messageView.errorGameNotStarted();
             return;
         }
 
         if (!moveExecutor.execute(x, y)) {
-            System.out.println("Ход невозможен: клетка занята или координаты неверны");
+            messageView.errorInvalidMove();
             return;
         }
 
-        // логируем ход текущего игрока
+        // логирование хода текущего игрока
         moveLogger.log(game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")");
 
         render();
 
-        // проверка победы
         WinResult result = winChecker.checkWin(game.getCurrentPlayer(), x, y);
         if (result.isWin()) {
-            System.out.println("Победил игрок " + game.getCurrentPlayer().getColor());
-            System.out.println("Координаты квадрата:");
+            messageView.winGame(game.getCurrentPlayer().getColor());
+            messageView.showSquareCoords(result.getSquareCoords());
             for (int[] coord : result.getSquareCoords()) {
                 System.out.println("  (" + coord[0] + "," + coord[1] + ")");
             }
@@ -65,7 +68,7 @@ public class GameService {
         }
 
         if (checkDraw()) {
-            System.out.println("Ничья!");
+            messageView.drawGame();
             game.setStatus("finished");
             return;
         }
@@ -86,7 +89,6 @@ public class GameService {
     }
 
     private void render() {
-        // если в CMD/терминале поддерживаются ANSI, очищаем по-умному; иначе печатаем много строк
         try {
             System.out.print("\033[H\033[2J");
             System.out.flush();
@@ -94,13 +96,9 @@ public class GameService {
             for (int i = 0; i < 30; i++) System.out.println();
         }
 
-        System.out.println("Ходы:");
-        for (String m : moveLogger.getMoves()) {
-            System.out.println("  " + m);
-        }
-        System.out.println();
+        messageView.showMoves(String.join("\n", moveLogger.getMoves()));
         boardView.printBoard();
-        System.out.println("Ход игрока: " + game.getCurrentPlayer().getColor());
+        messageView.showCurrentPlayer(game.getCurrentPlayer().getColor());
     }
 
     private boolean checkDraw() {
@@ -133,17 +131,14 @@ public class GameService {
 
                 WinResult result = winChecker.checkWin(comp, move[0], move[1]);
                 if (result.isWin()) {
-                    System.out.println("Победил игрок " + comp.getColor());
-                    System.out.println("Координаты квадрата:");
-                    for (int[] coord : result.getSquareCoords()) {
-                        System.out.println("  (" + coord[0] + "," + coord[1] + ")");
-                    }
+                    messageView.winGame(game.getCurrentPlayer().getColor());
+                    messageView.showSquareCoords(result.getSquareCoords());
                     game.setStatus("finished");
                     return;
                 }
 
                 if (checkDraw()) {
-                    System.out.println("Ничья!");
+                    messageView.drawGame();
                     game.setStatus("finished");
                     return;
                 }

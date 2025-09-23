@@ -8,9 +8,6 @@ public class Game {
     private Player second;
     private String status;
     private Player currentPlayer;
-    public Game() {
-        status = "not created";
-    }
     public Game(Board board, Player first, Player second) {
         this.board = board;
         this.first = first;
@@ -38,23 +35,11 @@ public class Game {
         return board;
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
     public Player getFirst() {
         return first;
     }
 
-    public void setFirst(Player first) {
-        this.first = first;
-    }
-
     public Player getSecond() {
         return second;
-    }
-
-    public void setSecond(Player second) {
-        this.second = second;
     }
 }

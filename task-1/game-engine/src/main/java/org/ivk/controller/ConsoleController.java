@@ -53,6 +53,11 @@ public class ConsoleController {
             String type2 = parts[4];
             String color2 = parts[5];
 
+            if (color1.equalsIgnoreCase(color2)) {
+                System.out.println("Ошибка: игроки не могут быть одного цвета!");
+                return;
+            }
+
             Player player1 = PlayerFactory.createPlayer(type1, color1);
             Player player2 = PlayerFactory.createPlayer(type2, color2);
 

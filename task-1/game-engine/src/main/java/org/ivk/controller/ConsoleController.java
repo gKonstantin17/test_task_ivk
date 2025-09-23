@@ -18,25 +18,23 @@ public class ConsoleController {
     public void receiveCommands() {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
+
         while (running) {
             String cmd = scanner.nextLine();
 
-            if (cmd == null || cmd.trim().isEmpty()) return;
+            if (cmd == null || cmd.trim().isEmpty()) {
+                continue;
+            }
 
-            String[] parts = cmd.toUpperCase().trim().split("\\s+");
-            String command = parts[0];
+            String[] parts = cmd.trim().split("\\s+");
+            String command = parts[0].toUpperCase();
 
             switch (command) {
-                case "GAME":
-                    handleGameCommand(parts);break;
-                case "MOVE":
-                    handleMoveCommand(parts);break;
-                case "HELP":
-                    messageView.help();break;
-                case "EXIT":
-                    scanner.close();break;
-                default:
-                    messageView.incorrect();break;
+                case "GAME" -> handleGameCommand(parts);
+                case "MOVE" -> handleMoveCommand(parts);
+                case "HELP" -> messageView.help();
+                case "EXIT" -> running = false;
+                default -> messageView.incorrect();
             }
         }
         scanner.close();
@@ -44,12 +42,12 @@ public class ConsoleController {
 
     private void handleGameCommand(String[] parts) {
         if (parts.length != 6) {
-            System.out.println("Ошибка: Формат команды: GAME N TYPE COLOR TYPE COLOR");
+            messageView.incorrect();
             return;
         }
 
         try {
-            Integer size = Integer.parseInt(parts[1]);
+            int size = Integer.parseInt(parts[1]);
             String type1 = parts[2];
             String color1 = parts[3];
             String type2 = parts[4];
@@ -59,17 +57,14 @@ public class ConsoleController {
             Player player2 = PlayerFactory.createPlayer(type2, color2);
 
             gameService.createNewGame(size, player1, player2);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Ошибка: Неверный формат размера доски");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            messageView.incorrect();
         }
     }
 
     private void handleMoveCommand(String[] parts) {
         if (parts.length != 3) {
-            System.out.println("Ошибка: Формат команды: MOVE X Y");
+            messageView.incorrect();
             return;
         }
 
@@ -78,7 +73,7 @@ public class ConsoleController {
             int y = Integer.parseInt(parts[2]);
             gameService.makeMove(x, y);
         } catch (NumberFormatException e) {
-            System.out.println("Ошибка: Неверный формат координат");
+            messageView.incorrect();
         }
     }
 

@@ -5,33 +5,42 @@ import org.ivk.entity.Game;
 import org.ivk.entity.player.Player;
 import org.ivk.view.BoardView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameService {
     private Game game;
     private BoardView boardView;
     private Board board;
+    private final List<String> moveLog = new ArrayList<>(); // ✅ Лог ходов
+
 
     public void createNewGame(Integer n, Player first, Player second) {
-        game = new Game(new Board(n), first,second);
+        game = new Game(new Board(n), first, second);
         board = game.getBoard();
         boardView = new BoardView(game.getBoard());
         game.setStatus("started");
         game.setCurrentPlayer(game.getFirst());
+        moveLog.clear();
         startGame();
     }
 
     private void startGame() {
-        boardView.printBoard();
-        System.out.println("Ход игрока: " + game.getCurrentPlayer().getColor());
+        render();
     }
     public void makeMove(int x, int y) {
         if (game == null) {
             System.out.println("Ошибка: Игра не начата. Сначала выполните команду GAME");
             return;
         }
-        if(!makeMoveOnBoard(x,y)) return;
+        if (!makeMoveOnBoard(x, y)) return;
 
-        boardView.printBoard();
-        if (checkWin(x,y)) {
+        // Добавляем запись в лог
+        moveLog.add(game.getCurrentPlayer().getColor() + " -> (" + x + "," + y + ")");
+
+        render();
+
+        if (checkWin(x, y)) {
             System.out.println("Игра окончена");
             return;
         }
@@ -42,9 +51,23 @@ public class GameService {
         }
         changePlayer();
     }
-    public Game getGame() {
-        return game;
+    private void render() {
+        // Очистка консоли и возврат курсора наверх
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+
+        // Секция логов
+        System.out.println("Ходы:");
+        for (String log : moveLog) {
+            System.out.println("  " + log);
+        }
+        System.out.println();
+
+        // Секция поля
+        boardView.printBoard();
+        System.out.println("Ход игрока: " + game.getCurrentPlayer().getColor());
     }
+
     public boolean makeMoveOnBoard(int x, int y) {
         if (!checkBoard(x,y))
             return false;

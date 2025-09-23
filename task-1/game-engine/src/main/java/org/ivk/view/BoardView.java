@@ -5,7 +5,7 @@ import org.ivk.entity.Board;
 public class BoardView {
     private final String W = "@";
     private final String B = "O";
-    private final String EMPTY = "∙";
+    private final String EMPTY = "·";
     private Board board;
     public BoardView(Board board) {
         this.board = board;

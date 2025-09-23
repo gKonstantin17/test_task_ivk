@@ -7,6 +7,7 @@ public class Game {
     private Player first;
     private Player second;
     private String status;
+    private Player currentPlayer;
     public Game() {
         status = "not created";
     }
@@ -23,5 +24,9 @@ public class Game {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }

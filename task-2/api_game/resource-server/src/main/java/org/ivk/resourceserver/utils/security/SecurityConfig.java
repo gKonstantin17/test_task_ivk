@@ -29,7 +29,7 @@ public class SecurityConfig {
                                         "/swagger-ui.html",
                                         "/webjars/**"
                                 ).permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().anonymous()
                 )
 
                 .csrf(csrf -> csrf.disable())

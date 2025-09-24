@@ -16,8 +16,10 @@ public class MessageView {
         System.out.println(logo);
         System.out.println(message);
     }
-    public void startGame() {
-        System.out.println("New game started");
+    public String startGame() {
+        String message = "New game started";
+        System.out.println(message);
+        return message;
     }
     public void help() {
         String message = "Игра \"Квадраты\"\n" +
@@ -40,22 +42,32 @@ public class MessageView {
                 "Например, MOVE 4, 3\n";
         System.out.println(message);
     }
-    public void incorrect() {
-        System.out.println("Incorrect command");
+    public String incorrect() {
+        String message = "Incorrect command";
+        System.out.println(message);
+        return message;
     }
-    public void winGame(String color) {
-        System.out.print("Game finished."+ color + " wins!");
+    public String winGame(String color) {
+        String message = "Game finished."+ color + " wins!";
+        System.out.println(message);
+        return message;
     }
-    public void drawGame() {
-        System.out.println("Game finished. Draw");
+    public String drawGame() {
+        String message = "Game finished. Draw";
+        System.out.println(message);
+        return message;
     }
 
-    public void errorGameNotStarted() {
-        System.out.println("Ошибка: Игра не начата. Сначала выполните команду GAME");
+    public String errorGameNotStarted() {
+        String message = "Ошибка: Игра не начата. Сначала выполните команду GAME";
+        System.out.println(message);
+        return message;
     }
 
-    public void errorInvalidMove() {
-        System.out.println("Ход невозможен: клетка занята или координаты неверны");
+    public String errorInvalidMove() {
+        String message = "Ход невозможен: клетка занята или координаты неверны";
+        System.out.println(message);
+        return message;
     }
 
     public void showMoves(String moves) {
@@ -66,6 +78,7 @@ public class MessageView {
         System.out.println("Ход игрока: " + color);
     }
     public void showSquareCoords(int[][] coords) {
+        String message = "";
         System.out.println("\nКоординаты квадрата:");
         for (int[] coord : coords) {
             System.out.println("  (" + coord[0] + "," + coord[1] + ")");

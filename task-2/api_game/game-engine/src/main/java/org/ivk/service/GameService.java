@@ -40,37 +40,38 @@ public class GameService {
         autoPlayForComp();
     }
 
-    public void makeMove(int x, int y) {
+    public String makeMove(int x, int y) {
         if (game == null) {
-            messageView.errorGameNotStarted();
-            return;
+            return messageView.errorGameNotStarted();
         }
 
+        // Сохраняем информацию о текущем ходе
+        String lastMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
+
         if (!moveExecutor.execute(x, y)) {
-            messageView.errorInvalidMove();
-            return;
+            return messageView.errorInvalidMove();
         }
 
         // логирование хода текущего игрока
-        moveLogger.log(game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")");
+        moveLogger.log(lastMove);
 
         render();
 
         WinResult result = winChecker.checkWin(game.getCurrentPlayer(), x, y);
         if (result.isWin()) {
-            messageView.winGame(game.getCurrentPlayer().getColor());
             messageView.showSquareCoords(result.getSquareCoords());
             for (int[] coord : result.getSquareCoords()) {
                 System.out.println("  (" + coord[0] + "," + coord[1] + ")");
             }
             game.setStatus("finished");
-            return;
+            messageView.winGame(game.getCurrentPlayer().getColor());
+            return lastMove; // возвращаем ход, который привел к победе
         }
 
         if (checkDraw()) {
-            messageView.drawGame();
             game.setStatus("finished");
-            return;
+            messageView.drawGame();
+            return lastMove; // возвращаем последний ход перед ничьей
         }
 
         changePlayer();
@@ -80,12 +81,15 @@ public class GameService {
             int myValue = "W".equals(comp.getColor()) ? 1 : 2;
             int oppValue = myValue == 1 ? 2 : 1;
 
-            int[] move = comp.makeMove(board, myValue, oppValue); // метод из класса Comp
+            int[] move = comp.makeMove(board, myValue, oppValue);
             if (move != null) {
-                // рекурсивно делаем ход компьютера
-                makeMove(move[0], move[1]);
+                // рекурсивно делаем ход компьютера и возвращаем его ход
+                String computerMove = makeMove(move[0], move[1]);
+                return computerMove != null ? computerMove : lastMove;
             }
         }
+
+        return lastMove; // возвращаем ход игрока
     }
 
     private void render() {

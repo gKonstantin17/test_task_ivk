@@ -40,7 +40,7 @@ public class ConsoleController {
         scanner.close();
     }
 
-    private void handleGameCommand(String[] parts) {
+    public void handleGameCommand(String[] parts) {
         if (parts.length < 5) {
             messageView.incorrect();
             return;
@@ -77,10 +77,9 @@ public class ConsoleController {
         }
     }
 
-    private void handleMoveCommand(String[] parts) {
+    public String handleMoveCommand(String[] parts) {
         if (parts.length < 2) {
-            messageView.incorrect();
-            return;
+            return messageView.incorrect();
         }
 
         try {
@@ -90,17 +89,17 @@ public class ConsoleController {
 
             String[] coords = coordsStr.split("\\s+");
             if (coords.length != 2) {
-                messageView.incorrect();
-                return;
+                return messageView.incorrect();
             }
 
             int x = Integer.parseInt(coords[0]);
             int y = Integer.parseInt(coords[1]);
 
-            gameService.makeMove(x, y);
+            return gameService.makeMove(x, y);
         } catch (NumberFormatException e) {
             messageView.incorrect();
         }
+        return null;
     }
 
 

@@ -98,6 +98,7 @@ public class ConsoleController {
             return gameService.makeMove(x, y);
         } catch (NumberFormatException e) {
             messageView.incorrect();
+            System.out.println(e.getMessage());
         }
         return null;
     }

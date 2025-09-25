@@ -1,6 +1,8 @@
 package org.ivk.resourceserver.service;
 
 import org.ivk.controller.ConsoleController;
+import org.ivk.entity.player.Comp;
+import org.ivk.resourceserver.dto.ResultCreateGame;
 import org.ivk.resourceserver.dto.ResultMove;
 import org.ivk.service.GameService;
 import org.ivk.view.MessageView;
@@ -17,14 +19,48 @@ public class GameServerService {
 
     public GameServerService() {
         this.gameService = new GameService();
-        this.consoleController = new ConsoleController();
+        this.consoleController = new ConsoleController(gameService);
         this.messageView = new MessageView();
     }
 
-    public String startGame(String cmd) {
+    public ResultCreateGame startGame(String cmd) {
+        ResultCreateGame result = new ResultCreateGame();
+
         String[] parts = cmd.toUpperCase().trim().split("\\s+");
         consoleController.handleGameCommand(parts);
-        return messageView.startGame();
+
+        result.setResult(messageView.startGame());
+
+        if (isFirstPlayerComputer()) {
+            String computerMoveResult = gameService.makeFirstComputerMove();
+            result.setFirstMove(extractMoveFromResult(computerMoveResult));
+        }
+
+        return result;
+    }
+
+    private boolean isFirstPlayerComputer() {
+        return gameService.getCurrentPlayer() instanceof Comp;
+    }
+
+    private String extractMoveFromResult(String moveResult) {
+        if (moveResult == null) return "No move";
+
+        String[] parts = moveResult.split(":", 2);
+        String type = parts[0];
+        String data = parts.length > 1 ? parts[1] : "";
+
+        switch (type) {
+            case "WIN":
+            case "DRAW":
+            case "MOVE":
+                String[] moveParts = data.split(":", 2);
+                return moveParts[0]; // возвращаем сам ход
+            case "ERROR":
+                return "Error: " + data;
+            default:
+                return moveResult;
+        }
     }
 
     public ResultMove move(String cmd) {
@@ -47,7 +83,7 @@ public class GameServerService {
             case "WIN":
                 String[] winParts = data.split(":", 2);
                 resultMove.setResult("win");
-                resultMove.setNextMove(winParts[0]); // ход игрока
+                resultMove.setNextMove(winParts[0]);
                 if (winParts.length > 1) {
                     resultMove.setWinSquare(parseSquareCoords(winParts[1]));
                 }
@@ -55,7 +91,7 @@ public class GameServerService {
 
             case "DRAW":
                 resultMove.setResult("draw");
-                resultMove.setNextMove(data); // ход игрока
+                resultMove.setNextMove(data);
                 break;
 
             case "ERROR":
@@ -67,9 +103,9 @@ public class GameServerService {
                 String[] moveParts = data.split(":", 2);
                 resultMove.setResult(null);
                 if (moveParts.length >= 2) {
-                    resultMove.setNextMove(moveParts[1]); // предложенный следующий ход
+                    resultMove.setNextMove(moveParts[1]);
                 } else {
-                    resultMove.setNextMove(moveParts[0]); // fallback
+                    resultMove.setNextMove(moveParts[0]);
                 }
                 break;
         }

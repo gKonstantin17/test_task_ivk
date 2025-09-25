@@ -37,7 +37,6 @@ public class GameService {
         messageView.startGame();
         render();
 
-        // autoPlayForComp();
     }
 
     public String makeMove(int x, int y) {
@@ -126,6 +125,25 @@ public class GameService {
         for (int i = 0; i < size; i++) for (int j = 0; j < size; j++) if (field[i][j] == 0) return false;
         return true;
     }
+    public Player getCurrentPlayer() {
+        return game != null ? game.getCurrentPlayer() : null;
+    }
+    public String makeFirstComputerMove() {
+        if (game == null || !(game.getCurrentPlayer() instanceof Comp)) {
+            return "ERROR:Not computer's turn";
+        }
+
+        Comp comp = (Comp) game.getCurrentPlayer();
+        int myValue = "W".equals(comp.getColor()) ? 1 : 2;
+        int oppValue = myValue == 1 ? 2 : 1;
+
+        int[] move = comp.makeMove(board, myValue, oppValue);
+        if (move != null) {
+            return makeMove(move[0], move[1]);
+        }
+
+        return "ERROR:Computer cannot make move";
+    }
 
     public void changePlayer() {
         Player currentPlayer = game.getCurrentPlayer();
@@ -133,43 +151,5 @@ public class GameService {
             game.setCurrentPlayer(game.getSecond());
         else
             game.setCurrentPlayer(game.getFirst());
-    }
-
-    private void autoPlayForComp() {
-        while (game.getStatus().equals("started") && game.getCurrentPlayer() instanceof Comp) {
-            Comp comp = (Comp) game.getCurrentPlayer();
-
-            int myValue = "W".equals(comp.getColor()) ? 1 : 2;
-            int oppValue = myValue == 1 ? 2 : 1;
-            int[] move = comp.makeMove(board, myValue, oppValue);
-
-            if (move != null) {
-                if (!moveExecutor.execute(move[0], move[1])) break;
-                moveLogger.log(comp.getColor() + " (" + move[0] + "," + move[1] + ")");
-                render();
-
-                WinResult result = winChecker.checkWin(comp, move[0], move[1]);
-                if (result.isWin()) {
-                    messageView.winGame(game.getCurrentPlayer().getColor());
-                    messageView.showSquareCoords(result.getSquareCoords());
-                    game.setStatus("finished");
-                    return;
-                }
-
-                if (checkDraw()) {
-                    messageView.drawGame();
-                    game.setStatus("finished");
-                    return;
-                }
-
-                changePlayer();
-            }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 }

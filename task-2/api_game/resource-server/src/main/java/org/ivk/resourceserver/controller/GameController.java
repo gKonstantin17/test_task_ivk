@@ -1,6 +1,7 @@
 package org.ivk.resourceserver.controller;
 
 import org.ivk.resourceserver.dto.CommandDto;
+import org.ivk.resourceserver.dto.ResultCreateGame;
 import org.ivk.resourceserver.dto.ResultMove;
 import org.ivk.resourceserver.service.GameServerService;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class GameController {
     }
 
     @PostMapping("/start-game")
-    public ResponseEntity<String> create(@RequestBody CommandDto dto) {
+    public ResponseEntity<ResultCreateGame> create(@RequestBody CommandDto dto) {
         return ResponseEntity.ok(service.startGame(dto.getCmd()));
     }
     @PostMapping("/move")

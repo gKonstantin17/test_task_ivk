@@ -8,9 +8,14 @@ import org.ivk.view.MessageView;
 import java.util.Scanner;
 
 public class ConsoleController {
-    private final GameService gameService = new GameService();
+    private final GameService gameService;
 
     private final MessageView messageView = new MessageView();
+
+    public ConsoleController(GameService gameService) {
+        this.gameService = gameService;
+    }
+
     public void run() {
         messageView.startApp();
         receiveCommands();

@@ -10,6 +10,11 @@ import org.ivk.view.MessageView;
 public class GameService {
     private Game game;
     private BoardView boardView;
+
+    public Board getBoard() {
+        return board;
+    }
+
     private Board board;
 
     private MoveLogger moveLogger;
@@ -37,59 +42,73 @@ public class GameService {
         messageView.startGame();
         render();
 
-        autoPlayForComp();
     }
 
     public String makeMove(int x, int y) {
-        if (game == null) {
-            return messageView.errorGameNotStarted();
-        }
+        if (game == null)
+            return "ERROR:" + messageView.errorGameNotStarted();
 
-        // Сохраняем информацию о текущем ходе
-        String lastMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
+        if (game.getStatus().equals("finished"))
+            return "ERROR:" + messageView.errorGameOver();
+
+        String playerMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
 
         if (!moveExecutor.execute(x, y)) {
-            return messageView.errorInvalidMove();
+            return "ERROR:" + messageView.errorInvalidMove();
         }
 
-        // логирование хода текущего игрока
-        moveLogger.log(lastMove);
-
+        moveLogger.log(playerMove);
         render();
 
         WinResult result = winChecker.checkWin(game.getCurrentPlayer(), x, y);
         if (result.isWin()) {
-            messageView.showSquareCoords(result.getSquareCoords());
-            for (int[] coord : result.getSquareCoords()) {
-                System.out.println("  (" + coord[0] + "," + coord[1] + ")");
-            }
             game.setStatus("finished");
-            messageView.winGame(game.getCurrentPlayer().getColor());
-            return lastMove; // возвращаем ход, который привел к победе
+            String squareCoords = formatSquareCoords(result.getSquareCoords());
+            return "WIN:" + playerMove + ":" + squareCoords;
         }
 
         if (checkDraw()) {
             game.setStatus("finished");
-            messageView.drawGame();
-            return lastMove; // возвращаем последний ход перед ничьей
+            return "DRAW:" + playerMove;
         }
 
         changePlayer();
 
         Player next = game.getCurrentPlayer();
-        if (next instanceof Comp comp) {
+        String suggestedMove = getSuggestedMove(next);
+
+        return "MOVE:" + playerMove + ":" + suggestedMove;
+    }
+
+    private String getSuggestedMove(Player player) {
+        if (player instanceof Comp comp) {
             int myValue = "W".equals(comp.getColor()) ? 1 : 2;
             int oppValue = myValue == 1 ? 2 : 1;
 
             int[] move = comp.makeMove(board, myValue, oppValue);
             if (move != null) {
-                // рекурсивно делаем ход компьютера и возвращаем его ход
-                String computerMove = makeMove(move[0], move[1]);
-                return computerMove != null ? computerMove : lastMove;
+                return comp.getColor() + " (" + move[0] + "," + move[1] + ")";
             }
         }
 
-        return lastMove; // возвращаем ход игрока
+        Comp virtualComp = new Comp();
+        virtualComp.setColor(player.getColor());
+        int myValue = "W".equals(player.getColor()) ? 1 : 2;
+        int oppValue = myValue == 1 ? 2 : 1;
+
+        int[] move = virtualComp.makeMove(board, myValue, oppValue);
+
+        return player.getColor() + " (" + move[0] + "," + move[1] + ")";
+    }
+
+    private String formatSquareCoords(int[][] coords) {
+        if (coords == null || coords.length == 0) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < coords.length; i++) {
+            if (i > 0) sb.append(",");
+            sb.append(coords[i][0]).append(",").append(coords[i][1]);
+        }
+        return sb.toString();
     }
 
     private void render() {
@@ -111,6 +130,26 @@ public class GameService {
         for (int i = 0; i < size; i++) for (int j = 0; j < size; j++) if (field[i][j] == 0) return false;
         return true;
     }
+    public Player getCurrentPlayer() {
+        return game != null ? game.getCurrentPlayer() : null;
+    }
+    public String makeFirstComputerMove() {
+        if (game == null || !(game.getCurrentPlayer() instanceof Comp)) {
+            return "ERROR:Not computer's turn";
+        }
+
+        Comp comp = (Comp) game.getCurrentPlayer();
+        int myValue = "W".equals(comp.getColor()) ? 1 : 2;
+        int oppValue = myValue == 1 ? 2 : 1;
+
+        int[] move = comp.makeMove(board, myValue, oppValue);
+        if (move != null) {
+            return makeMove(move[0], move[1]);
+        }
+
+        return "ERROR:Computer cannot make move";
+    }
+
 
     public void changePlayer() {
         Player currentPlayer = game.getCurrentPlayer();
@@ -118,43 +157,5 @@ public class GameService {
             game.setCurrentPlayer(game.getSecond());
         else
             game.setCurrentPlayer(game.getFirst());
-    }
-
-    private void autoPlayForComp() {
-        while (game.getStatus().equals("started") && game.getCurrentPlayer() instanceof Comp) {
-            Comp comp = (Comp) game.getCurrentPlayer();
-
-            int myValue = "W".equals(comp.getColor()) ? 1 : 2;
-            int oppValue = myValue == 1 ? 2 : 1;
-            int[] move = comp.makeMove(board, myValue, oppValue);
-
-            if (move != null) {
-                if (!moveExecutor.execute(move[0], move[1])) break; // на случай ошибки
-                moveLogger.log(comp.getColor() + " (" + move[0] + "," + move[1] + ")");
-                render();
-
-                WinResult result = winChecker.checkWin(comp, move[0], move[1]);
-                if (result.isWin()) {
-                    messageView.winGame(game.getCurrentPlayer().getColor());
-                    messageView.showSquareCoords(result.getSquareCoords());
-                    game.setStatus("finished");
-                    return;
-                }
-
-                if (checkDraw()) {
-                    messageView.drawGame();
-                    game.setStatus("finished");
-                    return;
-                }
-
-                changePlayer();
-            }
-
-            try {
-                Thread.sleep(500); // задержка 0.5 секунд
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 }

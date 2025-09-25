@@ -88,4 +88,10 @@ public class MessageView {
     public void errorSameColor() {
         System.out.println("Ошибка: игроки не могут быть одного цвета!");
     }
+
+    public String errorGameOver() {
+        String message = "Ошибка: Игра уже закончена";
+        System.out.println(message);
+        return message;
+    }
 }

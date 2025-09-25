@@ -41,37 +41,31 @@ public class GameService {
     }
 
     public String makeMove(int x, int y) {
-        if (game == null) {
-            return messageView.errorGameNotStarted();
-        }
+        if (game == null)
+            return "ERROR:" + messageView.errorGameNotStarted();
 
-        // Сохраняем информацию о текущем ходе
+        if (game.getStatus().equals("fineshed"))
+            return "ERROR:" + messageView.errorGameOver();
+
         String lastMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
 
         if (!moveExecutor.execute(x, y)) {
-            return messageView.errorInvalidMove();
+            return "ERROR:" + messageView.errorInvalidMove();
         }
 
-        // логирование хода текущего игрока
         moveLogger.log(lastMove);
-
         render();
 
         WinResult result = winChecker.checkWin(game.getCurrentPlayer(), x, y);
         if (result.isWin()) {
-            messageView.showSquareCoords(result.getSquareCoords());
-            for (int[] coord : result.getSquareCoords()) {
-                System.out.println("  (" + coord[0] + "," + coord[1] + ")");
-            }
             game.setStatus("finished");
-            messageView.winGame(game.getCurrentPlayer().getColor());
-            return lastMove; // возвращаем ход, который привел к победе
+            String squareCoords = formatSquareCoords(result.getSquareCoords());
+            return "WIN:" + lastMove + ":" + squareCoords;
         }
 
         if (checkDraw()) {
             game.setStatus("finished");
-            messageView.drawGame();
-            return lastMove; // возвращаем последний ход перед ничьей
+            return "DRAW:" + lastMove;
         }
 
         changePlayer();
@@ -83,13 +77,22 @@ public class GameService {
 
             int[] move = comp.makeMove(board, myValue, oppValue);
             if (move != null) {
-                // рекурсивно делаем ход компьютера и возвращаем его ход
                 String computerMove = makeMove(move[0], move[1]);
-                return computerMove != null ? computerMove : lastMove;
+                return "MOVE:" + lastMove + "->" + computerMove.replaceFirst("^(WIN|DRAW|ERROR|MOVE):", "");
             }
         }
 
-        return lastMove; // возвращаем ход игрока
+        return "MOVE:" + lastMove;
+    }
+
+    private String formatSquareCoords(int[][] coords) {
+        if (coords == null || coords.length == 0) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < coords.length; i++) {
+            if (i > 0) sb.append(",");
+            sb.append(coords[i][0]).append(",").append(coords[i][1]);
+        }
+        return sb.toString();
     }
 
     private void render() {
@@ -129,7 +132,7 @@ public class GameService {
             int[] move = comp.makeMove(board, myValue, oppValue);
 
             if (move != null) {
-                if (!moveExecutor.execute(move[0], move[1])) break; // на случай ошибки
+                if (!moveExecutor.execute(move[0], move[1])) break;
                 moveLogger.log(comp.getColor() + " (" + move[0] + "," + move[1] + ")");
                 render();
 
@@ -151,7 +154,7 @@ public class GameService {
             }
 
             try {
-                Thread.sleep(500); // задержка 0.5 секунд
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

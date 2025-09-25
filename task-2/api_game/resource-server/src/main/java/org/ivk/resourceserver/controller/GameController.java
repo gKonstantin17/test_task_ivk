@@ -1,6 +1,7 @@
 package org.ivk.resourceserver.controller;
 
 import org.ivk.resourceserver.dto.CommandDto;
+import org.ivk.resourceserver.dto.ResultMove;
 import org.ivk.resourceserver.service.GameServerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class GameController {
         return ResponseEntity.ok(service.startGame(dto.getCmd()));
     }
     @PostMapping("/move")
-    public  ResponseEntity<String> move(@RequestBody CommandDto dto) {
+    public  ResponseEntity<ResultMove> move(@RequestBody CommandDto dto) {
         return ResponseEntity.ok(service.move(dto.getCmd()));
     }
 }

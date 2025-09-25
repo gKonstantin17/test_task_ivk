@@ -6,4 +6,5 @@ import lombok.Data;
 public class ResultCreateGame {
     String result;
     String firstMove;
+    String nextMove;
 }

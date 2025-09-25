@@ -10,6 +10,11 @@ import org.ivk.view.MessageView;
 public class GameService {
     private Game game;
     private BoardView boardView;
+
+    public Board getBoard() {
+        return board;
+    }
+
     private Board board;
 
     private MoveLogger moveLogger;
@@ -144,6 +149,7 @@ public class GameService {
 
         return "ERROR:Computer cannot make move";
     }
+
 
     public void changePlayer() {
         Player currentPlayer = game.getCurrentPlayer();

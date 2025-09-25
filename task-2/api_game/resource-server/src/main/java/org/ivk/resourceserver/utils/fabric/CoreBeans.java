@@ -1,0 +1,25 @@
+package org.ivk.resourceserver.utils.fabric;
+
+import org.ivk.controller.ConsoleController;
+import org.ivk.service.GameService;
+import org.ivk.view.MessageView;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class CoreBeans {
+    @Bean
+    public GameService gameService() {
+        return new GameService();
+    }
+
+    @Bean
+    public MessageView messageView() {
+        return new MessageView();
+    }
+
+    @Bean
+    public ConsoleController consoleController(GameService gameService) {
+        return new ConsoleController(gameService);
+    }
+}

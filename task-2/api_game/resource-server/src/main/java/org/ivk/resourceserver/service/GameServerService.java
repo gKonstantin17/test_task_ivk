@@ -2,6 +2,7 @@ package org.ivk.resourceserver.service;
 
 import org.ivk.controller.ConsoleController;
 import org.ivk.entity.player.Comp;
+import org.ivk.entity.player.Player;
 import org.ivk.resourceserver.dto.ResultCreateGame;
 import org.ivk.resourceserver.dto.ResultMove;
 import org.ivk.resourceserver.service.MoveResultParser;
@@ -35,17 +36,21 @@ public class GameServerService {
 
         String[] parts = cmd.toUpperCase().trim().split("\\s+");
         consoleController.handleGameCommand(parts);
+
+        Player current = gameService.getCurrentPlayer();
         result.setResult(messageView.startGame());
 
-        if (gameService.getCurrentPlayer() instanceof Comp) {
+        if (current instanceof Comp) {
             String moveResult = gameService.makeFirstComputerMove();
             ResultMove parsed = moveResultParser.parse(moveResult);
-            result.setFirstMove(parsed.getNextMove());
+
+            result.setFirstMove(parsed.getPlayerMove());
             result.setNextMove(parsed.getNextMove());
         } else {
-            result.setFirstMove("First player: " + gameService.getCurrentPlayer().getColor());
-            result.setNextMove(suggestedMoveService.getSuggestedMove(gameService.getCurrentPlayer(), gameService.getBoard()));
+            result.setFirstMove("First player: " + current.getColor());
+            result.setNextMove(suggestedMoveService.getSuggestedMove(current, gameService.getBoard()));
         }
+
         return result;
     }
 

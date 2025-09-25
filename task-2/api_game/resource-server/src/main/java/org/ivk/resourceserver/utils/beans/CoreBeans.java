@@ -1,4 +1,4 @@
-package org.ivk.resourceserver.utils.fabric;
+package org.ivk.resourceserver.utils.beans;
 
 import org.ivk.controller.ConsoleController;
 import org.ivk.service.GameService;
@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CoreBeans {
+    // бины для Java-core классов
     @Bean
     public GameService gameService() {
         return new GameService();

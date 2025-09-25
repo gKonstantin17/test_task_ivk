@@ -1,6 +1,7 @@
 package org.ivk.resourceserver.service;
 
 import org.ivk.resourceserver.dto.ResultMove;
+import org.ivk.view.MessageView;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -8,6 +9,11 @@ import java.util.List;
 
 @Component
 public class MoveResultParser {
+    private final MessageView messageView;
+
+    public MoveResultParser(MessageView messageView) {
+        this.messageView = messageView;
+    }
 
     public ResultMove parse(String moveResult) {
         ResultMove resultMove = new ResultMove();
@@ -20,7 +26,7 @@ public class MoveResultParser {
         switch (type) {
             case "WIN" -> parseWin(resultMove, data);
             case "DRAW" -> {
-                resultMove.setResult("draw");
+                parseDraw(resultMove, data);
                 resultMove.setNextMove(data);
             }
             case "ERROR" -> {
@@ -34,22 +40,28 @@ public class MoveResultParser {
 
     private void parseWin(ResultMove resultMove, String data) {
         String[] winParts = data.split(":", 2);
-        resultMove.setResult("win");
-        resultMove.setNextMove(winParts[0]);
+        resultMove.setPlayerMove(winParts[0]);
+
         if (winParts.length > 1) {
             resultMove.setWinSquare(parseSquareCoords(winParts[1]));
         }
+
+        // Здесь подключаем MessageView для корректного сообщения
+        String color = winParts[0].substring(0, 1); // первый символ хода = цвет игрока
+        resultMove.setResult(messageView.winGame(color));
     }
 
     private void parseMove(ResultMove resultMove, String data) {
         String[] moveParts = data.split(":", 2);
+        resultMove.setPlayerMove(moveParts[0]);
         if (moveParts.length >= 2) {
             resultMove.setNextMove(moveParts[1]);
-        } else {
-            resultMove.setNextMove(moveParts[0]);
         }
     }
-
+    private void parseDraw(ResultMove resultMove, String data) {
+        resultMove.setPlayerMove(data);
+        resultMove.setResult(messageView.drawGame());
+    }
     private List<int[]> parseSquareCoords(String coordsStr) {
         List<int[]> square = new ArrayList<>();
         String[] pairs = coordsStr.split(",");

@@ -37,52 +37,64 @@ public class GameService {
         messageView.startGame();
         render();
 
-        autoPlayForComp();
+        // autoPlayForComp();
     }
 
     public String makeMove(int x, int y) {
         if (game == null)
             return "ERROR:" + messageView.errorGameNotStarted();
 
-        if (game.getStatus().equals("fineshed"))
+        if (game.getStatus().equals("finished"))
             return "ERROR:" + messageView.errorGameOver();
 
-        String lastMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
+        String playerMove = game.getCurrentPlayer().getColor() + " (" + x + "," + y + ")";
 
         if (!moveExecutor.execute(x, y)) {
             return "ERROR:" + messageView.errorInvalidMove();
         }
 
-        moveLogger.log(lastMove);
+        moveLogger.log(playerMove);
         render();
 
         WinResult result = winChecker.checkWin(game.getCurrentPlayer(), x, y);
         if (result.isWin()) {
             game.setStatus("finished");
             String squareCoords = formatSquareCoords(result.getSquareCoords());
-            return "WIN:" + lastMove + ":" + squareCoords;
+            return "WIN:" + playerMove + ":" + squareCoords;
         }
 
         if (checkDraw()) {
             game.setStatus("finished");
-            return "DRAW:" + lastMove;
+            return "DRAW:" + playerMove;
         }
 
         changePlayer();
 
         Player next = game.getCurrentPlayer();
-        if (next instanceof Comp comp) {
+        String suggestedMove = getSuggestedMove(next);
+
+        return "MOVE:" + playerMove + ":" + suggestedMove;
+    }
+
+    private String getSuggestedMove(Player player) {
+        if (player instanceof Comp comp) {
             int myValue = "W".equals(comp.getColor()) ? 1 : 2;
             int oppValue = myValue == 1 ? 2 : 1;
 
             int[] move = comp.makeMove(board, myValue, oppValue);
             if (move != null) {
-                String computerMove = makeMove(move[0], move[1]);
-                return "MOVE:" + lastMove + "->" + computerMove.replaceFirst("^(WIN|DRAW|ERROR|MOVE):", "");
+                return comp.getColor() + " (" + move[0] + "," + move[1] + ")";
             }
         }
 
-        return "MOVE:" + lastMove;
+        Comp virtualComp = new Comp();
+        virtualComp.setColor(player.getColor());
+        int myValue = "W".equals(player.getColor()) ? 1 : 2;
+        int oppValue = myValue == 1 ? 2 : 1;
+
+        int[] move = virtualComp.makeMove(board, myValue, oppValue);
+
+        return player.getColor() + " (" + move[0] + "," + move[1] + ")";
     }
 
     private String formatSquareCoords(int[][] coords) {

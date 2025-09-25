@@ -47,7 +47,7 @@ public class GameServerService {
             case "WIN":
                 String[] winParts = data.split(":", 2);
                 resultMove.setResult("win");
-                resultMove.setNextMove(winParts[0]);
+                resultMove.setNextMove(winParts[0]); // ход игрока
                 if (winParts.length > 1) {
                     resultMove.setWinSquare(parseSquareCoords(winParts[1]));
                 }
@@ -55,7 +55,7 @@ public class GameServerService {
 
             case "DRAW":
                 resultMove.setResult("draw");
-                resultMove.setNextMove(data);
+                resultMove.setNextMove(data); // ход игрока
                 break;
 
             case "ERROR":
@@ -64,8 +64,13 @@ public class GameServerService {
                 break;
 
             case "MOVE":
+                String[] moveParts = data.split(":", 2);
                 resultMove.setResult(null);
-                resultMove.setNextMove(data);
+                if (moveParts.length >= 2) {
+                    resultMove.setNextMove(moveParts[1]); // предложенный следующий ход
+                } else {
+                    resultMove.setNextMove(moveParts[0]); // fallback
+                }
                 break;
         }
 

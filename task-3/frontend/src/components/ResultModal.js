@@ -11,5 +11,5 @@ export default function ResultModal({ open, result, onClose }) {
                 <Button onClick={onClose}>Ок</Button>
             </DialogActions>
         </Dialog>
-    );
+)
 }

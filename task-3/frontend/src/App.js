@@ -10,15 +10,28 @@ function App() {
     const [result, setResult] = useState(null);
 
     return (
-        <div style={{ position: "relative", padding: 20, maxWidth: 900, margin: "0 auto" }}>
+        <div
+            style={{
+                position: "relative",
+                maxWidth: 900,
+                margin: "0 auto",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                padding: 20,
+                boxSizing: "border-box",
+            }}
+        >
             {!gameConfig ? (
                 <GameForm onGameStart={setGameConfig} />
             ) : (
-                <GameBoard
-                    size={gameConfig.size}
-                    currentPlayer={{ type: gameConfig.player1Type, color: gameConfig.player1Color }}
-                    onMove={(res) => setResult(res.cmd || res.result || "Ход сделан")}
-                />
+                <div style={{ flex: 1, minHeight: 0 }}>
+                    <GameBoard
+                        size={gameConfig.size}
+                        currentPlayer={{ type: gameConfig.player1Type, color: gameConfig.player1Color }}
+                        onMove={(res) => setResult(res.cmd || res.result || "Ход сделан")}
+                    />
+                </div>
             )}
 
             <ResultModal open={!!result} result={result} onClose={() => setResult(null)} />

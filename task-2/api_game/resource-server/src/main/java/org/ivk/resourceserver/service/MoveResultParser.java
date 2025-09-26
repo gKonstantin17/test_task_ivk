@@ -46,8 +46,7 @@ public class MoveResultParser {
             resultMove.setWinSquare(parseSquareCoords(winParts[1]));
         }
 
-        // Здесь подключаем MessageView для корректного сообщения
-        String color = winParts[0].substring(0, 1); // первый символ хода = цвет игрока
+        String color = winParts[0].substring(0, 1);
         resultMove.setResult(messageView.winGame(color));
     }
 
